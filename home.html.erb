@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+</head>
+<body>
+  <% require 'pg' %>
+  <% connection = PG::connect(dbname: "goya") %>
+  <% connection.internal_encoding = "UTF-8" %>
+  <% result = connection.exec("select weight, give_for, quality from crops;") %>
+  <% data = []
+  false_datas = [] %>
+
+  <% result.each do |record| %>
+    <% if record['quality']=='f' %>
+      <% false_datas << "La taille de la courge amère：#{record["weight"]}　vendu à：#{record["give_for"]} et de mauvaise qualité" %>
+    <% end %>
+    <%  data << "La taille de la courge amère：#{record["weight"]}　vendu à：#{record["give_for"]}" %>
+  <% end %>
+  <form action="goya.cgi" method="POST" class="">
+    <input type="text" name="goya" value="<%= data.join(',') %>" hidden>
+    <input type="submit" value="Voir les goya">
+  </form>
+
+  <form action="false-goya.cgi" method="POST">
+    <input type="text" name="false-goya" value="<%=  false_datas.join(',') %>"  hidden>
+    <input type="submit" value="Voir les fausses goya">
+  </form>
+</body>
+</html>
